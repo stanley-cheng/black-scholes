@@ -1,5 +1,9 @@
 '''
-This module provides functions to calculate the Black Scholes option price, implied volatility and Greeks.
+This module provides functions to calculate the Black Scholes price, implied volatility and Greeks for a European option. 
+
+Most are implemented according to the formulas shown in https://en.wikipedia.org/wiki/Greeks_(finance)#Formulas_for_European_option_Greeks. 
+
+Greeks are defined as they are on Deribit: https://insights.deribit.com/education/introduction-to-option-greeks/.
 '''
 
 from scipy.special import ndtr
@@ -27,7 +31,12 @@ def bs_price(flag, S, K, T, r, vol):
     r: float
         Risk-free interest rate as a fraction (e.g. 0.01 for 1%)
     vol: float
-        Black Scholes implied volatility as a fraction 
+        Black Scholes implied volatility as a fraction
+
+    Returns
+    ----------
+    price: float
+        Black Scholes price of the option
     '''
         
     d1 = (np.log(S / K) + (r + 0.5 * vol * vol) * T) / (vol * np.sqrt(T))
@@ -41,7 +50,7 @@ def bs_price(flag, S, K, T, r, vol):
 
 def bs_delta(flag, S, K, T, r, vol):
     '''
-    Function that calculates the delta of an European call or put option.
+    Function that calculates the delta of an European call or put option using the closed form formula.
 
     Parameters
     ----------
@@ -57,6 +66,11 @@ def bs_delta(flag, S, K, T, r, vol):
         Risk-free interest rate as a fraction (e.g. 0.01 for 1%)
     vol: float
         Black Scholes implied volatility as a fraction 
+
+    Returns
+    ----------
+    delta: float
+        Black Scholes delta of the option
     '''
 
     d1 = (np.log(S / K) + (r + 0.5 * vol * vol) * T) / (vol * np.sqrt(T))
@@ -83,6 +97,11 @@ def bs_gamma(flag, S, K, T, r, vol):
         Risk-free interest rate as a fraction (e.g. 0.01 for 1%)
     vol: float
         Black Scholes implied volatility as a fraction 
+
+    Returns
+    ----------
+    gamma: float
+        Black Scholes gamma of the option
     '''
 
     d1 = (np.log(S / K) + (r + 0.5 * vol * vol) * T) / (vol * np.sqrt(T))
@@ -105,7 +124,12 @@ def bs_vega(flag, S, K, T, r, vol):
     r: float
         Risk-free interest rate as a fraction (e.g. 0.01 for 1%)
     vol: float
-        Black Scholes implied volatility as a fraction 
+        Black Scholes implied volatility as a fraction
+
+    Returns
+    ----------
+    vega: float
+        Black Scholes vega of the option
     '''
 
     d1 = (np.log(S / K) + (r + 0.5 * vol * vol) * T) / (vol * np.sqrt(T))
@@ -129,15 +153,20 @@ def bs_theta(flag, S, K, T, r, vol):
         Risk-free interest rate as a fraction (e.g. 0.01 for 1%)
     vol: float
         Black Scholes implied volatility as a fraction 
+
+    Returns
+    ----------
+    theta: float
+        Black Scholes theta of the option
     '''
 
     d1 = (np.log(S / K) + (r + 0.5 * vol * vol) * T) / (vol * np.sqrt(T))
     d2 = d1 - vol * np.sqrt(T)
     
     if flag == 'c':
-        return ( -(S * N_prime(d1) * sigma) / (2 * np.sqrt(T)) - r * K * np.exp(-r * T) * N(d2) ) / 365
+        return ( -(S * N_prime(d1) * vol) / (2 * np.sqrt(T)) - r * K * np.exp(-r * T) * N(d2) ) / 365
     elif flag == 'p':
-        return ( -(S * N_prime(d1) * sigma) / (2 * np.sqrt(T)) + r * K * np.exp(-r * T) * N(-d2) ) / 365
+        return ( -(S * N_prime(d1) * vol) / (2 * np.sqrt(T)) + r * K * np.exp(-r * T) * N(-d2) ) / 365
 
 def bs_rho(flag, S, K, T, r, vol):
     '''
@@ -157,6 +186,11 @@ def bs_rho(flag, S, K, T, r, vol):
         Risk-free interest rate as a fraction (e.g. 0.01 for 1%)
     vol: float
         Black Scholes implied volatility as a fraction 
+
+    Returns
+    ----------
+    rho: float
+    Black Scholes rho of the option
     '''
 
     d1 = (np.log(S / K) + (r + 0.5 * vol * vol) * T) / (vol * np.sqrt(T))
@@ -186,6 +220,11 @@ def bs_impliedvol(flag, price, S, K, T, r, *args):
         Time to maturity (in years)
     r: float
         Risk-free interest rate as a fraction (e.g. 0.01 for 1%)
+
+    Returns
+    ----------
+    impliedvol: float
+    Black Scholes implied volatility of the option
     '''
 
     MAX_STEPS = 200
